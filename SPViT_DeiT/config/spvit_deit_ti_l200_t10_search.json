@@ -1,0 +1,22 @@
+{
+  "model": "spvit_deit_tiny_patch16_224",
+  "batch_size": 256,
+  "data_path": "data/imagenet",
+  "data_set": "IMNET",
+  "exp_name": "spvit_deit_ti_l200_t10_search",
+  "input_size": 224,
+  "patch_size": 16,
+  "num_workers": 10,
+  "att_layer": "UnifiedAttention",
+  "ffn_layer": "UnifiedMlp",
+  "loss_lambda": 20.0,
+  "theta": 1.5,
+  "target_flops": 1.0,
+  "resume": "model/deit_tiny_patch16_224-a1311bcf.pth",
+  "searching_model": "",
+  "assigned_indicators": [],
+  "arc_lr": 1e-3,
+  "lr": 5e-5,
+  "min_lr": 1e-4,
+  "warmup_epochs": 0
+}

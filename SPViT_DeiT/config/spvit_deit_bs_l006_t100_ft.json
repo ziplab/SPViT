@@ -1,0 +1,22 @@
+{
+  "model": "spvit_deit_base_patch16_224",
+  "batch_size": 128,
+  "data_path": "data/imagenet",
+  "data_set": "IMNET",
+  "exp_name": "spvit_deit_bs_l006_t100_ft",
+  "input_size": 224,
+  "patch_size": 16,
+  "num_workers": 10,
+  "att_layer": "UnifiedAttention",
+  "ffn_layer": "UnifiedMlp",
+  "loss_lambda": 0.06,
+  "theta": 1.5,
+  "target_flops": 10.0,
+  "resume": "model/deit_base_patch16_224-b5f2ef4d.pth",
+  "searching_model": "ffn_indicators/spvit_deit_bs_l006_t100_search_15epoch.pth",
+  "assigned_indicators": [[1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]],
+  "arc_lr": 1e-3,
+  "lr": 5e-5,
+  "epochs": 130,
+  "warmup_epochs": 0
+}
