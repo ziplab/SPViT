@@ -20,7 +20,6 @@
   
   # Install other requirements:
   pip install opencv-python==4.4.0.46 termcolor==1.1.0 yacs==0.1.8
-  pip install fvcore
   ```
 
 - Next, install some other dependencies that are required by SPViT:
@@ -29,10 +28,10 @@
   pip install tensorboardX tensorboard
   ```
 
-- Please refer to the [Swin](https://github.com/microsoft/Swin-Transformer/blob/main/get_started.md) repository to prepare the standard ImageNet dataset, then link the ImageNet dataset under the `data`folder:
+- Please refer to the [Swin](https://github.com/microsoft/Swin-Transformer/blob/main/get_started.md) repository to prepare the standard ImageNet dataset, then link the ImageNet dataset under the `dataset`folder:
 
   ```bash
-  $ tree data
+  $ tree dataset
   imagenet
   ├── train
   │   ├── class1
@@ -93,6 +92,8 @@ python -m torch.distributed.launch --nproc_per_node 8 --master_port 3132 main_pr
 
 #### Fine-tuning
 
+You can start fine-tuning from either your own searched architectures or from our provided architectures by modifying and assigning the MSA indicators in `assigned_indicators` and the FFN indicators in `searching_model`.
+
 To fine-tune architectures searched by SPViT-Swin-T, run:
 
 ```bash
@@ -111,3 +112,9 @@ To search architectures with SPViT-Swin-B, run:
 python -m torch.distributed.launch --nproc_per_node 8 --master_port 3132 main_pruning.py --cfg configs/spvit_swin_bs_l01_t100_ft.yaml --resume model/swin_base_patch4_window7_224.pth
 ```
 
+#### TODO:
+
+```
+- [x] Release code.
+- [ ] Release pre-trained models.
+```
