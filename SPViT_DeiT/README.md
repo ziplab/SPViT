@@ -86,19 +86,19 @@ python -m torch.distributed.launch --nproc_per_node=8 --master_port=3146 --use_e
 
 You can start fine-tuning from either your own searched architectures or from our provided architectures by modifying and assigning the MSA indicators in `assigned_indicators` and the FFN indicators in `searching_model`.
 
-To fine-tune architectures searched by SPViT-DeiT-Ti, run:
+To fine-tune the architectures searched by SPViT-DeiT-Ti, run:
 
 ```bash
 python -m torch.distributed.launch --nproc_per_node=4 --master_port=3146 --use_env main_pruning.py --config config/spvit_deit_ti_l200_t10_ft.json
 ```
 
-To search architectures with SPViT-DeiT-S, run:
+To fine-tune the architectures with SPViT-DeiT-S, run:
 
 ```bash
 python -m torch.distributed.launch --nproc_per_node=8 --master_port=3146 --use_env main_pruning.py --config config/spvit_deit_sm_l30_t32_ft.json
 ```
 
-To search architectures with SPViT-DeiT-B, run:
+To fine-tune the architectures with SPViT-DeiT-B, run:
 
 ```bash
 python -m torch.distributed.launch --nproc_per_node=8 --master_port=3146 --use_env main_pruning.py --config config/spvit_deit_bs_l006_t100_ft.json
