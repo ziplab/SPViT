@@ -185,7 +185,7 @@ def main(config):
         acc1, acc5, loss = validate(config, data_loader_val, model, epoch)
 
         logger.info(f"Accuracy of the network on the {len(dataset_val)} test images: {acc1:.1f}%")
-        if dist.get_rank() == 0 and max_accuracy < acc1 and not config.EXTRA.assigned_indicators:
+        if dist.get_rank() == 0 and max_accuracy < acc1 and config.EXTRA.assigned_indicators:
             save_best_checkpoint_pruning(config, epoch, model_without_ddp, max_accuracy, optimizer1, optimizer2, lr_scheduler1, lr_scheduler2, logger)
         max_accuracy = max(max_accuracy, acc1)
         logger.info(f'Max accuracy: {max_accuracy:.2f}%')
