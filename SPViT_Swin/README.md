@@ -75,7 +75,7 @@
 To search architectures with SPViT-Swin-T, run:
 
 ```bash
-python -m torch.distributed.launch --nproc_per_node 8 --master_port 3132 main_pruning.py --cfg configs/spvit_swin_tn_l01_t100_search.yaml --resume model/swin_tiny_patch4_window7_224.pth
+python -m torch.distributed.launch --nproc_per_node 8 --master_port 3132 main_pruning.py --cfg configs/spvit_swin_tn_l28_t32_search.yaml --resume model/swin_tiny_patch4_window7_224.pth
 ```
 
 To search architectures with SPViT-Swin-S, run:
@@ -97,7 +97,7 @@ You can start fine-tuning from either your own searched architectures or from ou
 To fine-tune architectures searched by SPViT-Swin-T, run:
 
 ```bash
-python -m torch.distributed.launch --nproc_per_node 8 --master_port 3132 main_pruning.py --cfg configs/spvit_swin_tn_l01_t100_ft.yaml --resume model/swin_tiny_patch4_window7_224.pth
+python -m torch.distributed.launch --nproc_per_node 8 --master_port 3132 main_pruning.py --cfg configs/spvit_swin_tn_l28_t32_ft.yaml --resume model/swin_tiny_patch4_window7_224.pth
 ```
 
 To fine-tune the architectures with SPViT-Swin-S, run:
