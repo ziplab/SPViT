@@ -3,9 +3,9 @@ MODEL:
   NAME: spvit_swin_tn_l28_t32_ft
   DROP_PATH_RATE: 0.2
   SWIN:
-    EMBED_DIM: 128
-    DEPTHS: [ 2, 2, 18, 2 ]
-    NUM_HEADS: [ 4, 8, 16, 32 ]
+    EMBED_DIM: 96
+    DEPTHS: [ 2, 2, 6, 2 ]
+    NUM_HEADS: [ 3, 6, 12, 24 ]
     WINDOW_SIZE: 7
 DATA:
   NUM_WORKERS: 10
