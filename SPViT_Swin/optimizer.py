@@ -19,7 +19,7 @@ def build_optimizer(config, model):
         skip = model.no_weight_decay()
     if hasattr(model, 'no_weight_decay_keywords'):
         skip_keywords = model.no_weight_decay_keywords()
-    parameters = set_weight_decay(model, skip, skip_keywords, config.EXTRA.small_weight_decay_num)
+    parameters = set_weight_decay(model, skip, skip_keywords)
 
     opt_lower = config.TRAIN.OPTIMIZER.NAME.lower()
     optimizer = None

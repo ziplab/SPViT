@@ -1,7 +1,7 @@
 MODEL:
   TYPE: spvit_swin
-  NAME: spvit_swin_bs_l01_t100_search
-  DROP_PATH_RATE: 0.5
+  NAME: spvit_swin_tn_l28_t32_search
+  DROP_PATH_RATE: 0.2
   SWIN:
     EMBED_DIM: 128
     DEPTHS: [ 2, 2, 18, 2 ]
@@ -13,9 +13,9 @@ DATA:
   DATA_PATH: dataset/imagenet
   DATASET: imagenet
 EXTRA:
-  loss_lambda: 0.1
+  loss_lambda: 2.8
   arc_decay: 150
-  target_flops: 10.0
+  target_flops: 3.2
   arc_warmup: 0
   arc_min_lr: 5e-4
   architecture_lr: 5e-4
