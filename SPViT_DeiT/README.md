@@ -104,10 +104,32 @@ To fine-tune the architectures with SPViT-DeiT-B, run:
 python -m torch.distributed.launch --nproc_per_node=8 --master_port=3146 --use_env main_pruning.py --config config/spvit_deit_bs_l006_t100_ft.json
 ```
 
+#### Evaluation
+
+We provide several examples for evaluating pre-trained SPViT models.
+
+To evaluate SPViT-DeiT-Ti pre-trained models, run:
+
+```bash
+python -m torch.distributed.launch --nproc_per_node=4 --master_port=3146 --use_env main_pruning.py --config config/spvit_deit_ti_l200_t10_ft.json --resume [PRE-TRAINED MODEL PATH] --eval
+```
+
+To evaluate SPViT-DeiT-S pre-trained models, run:
+
+```bash
+python -m torch.distributed.launch --nproc_per_node=8 --master_port=3146 --use_env main_pruning.py --config config/spvit_deit_sm_l30_t32_ft.json --resume [PRE-TRAINED MODEL PATH]  --eval
+```
+
+To evaluate SPViT-DeiT-B pre-trained models, run:
+
+```bash
+python -m torch.distributed.launch --nproc_per_node=8 --master_port=3146 --use_env main_pruning.py --config config/spvit_deit_bs_l006_t100_ft.json --resume [PRE-TRAINED MODEL PATH] --eval
+```
+
 #### TODO:
 
 ```
 - [x] Release code.
-- [ ] Release pre-trained models.
+- [x] Release pre-trained models.
 ```
 

@@ -21,8 +21,8 @@ EXTRA:
   architecture_lr: 5e-4
   alpha: 1e2
   theta: 1.5
-  assigned_indicators: [[[1.0, 0.0, 0.0], [0.0, 0.0, 0.0]], [[1.0, 0.0, 0.0], [1.0, 1.0, 1.0]], [[1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 0.0, 0.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]], [[1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]]
-  searching_model: 'ffn_indicators/spvit_swin_tn_l28_t32_search_10epoch.pth'
+  assigned_indicators: [[[1.0, 0.0, 0.0], [0.0, 0.0, 0.0]], [[1.0, 0.0, 0.0], [0.0, 0.0, 0.0]], [[1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]], [[1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]]
+  searching_model: 'ffn_indicators/spvit_swin_sm_l04_t55_search_14epoch.pth'
 TRAIN:
   EPOCHS: 130
   WARMUP_EPOCHS: 0

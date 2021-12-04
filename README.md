@@ -8,6 +8,24 @@
 
 To reduce the massive computational resource consumption for ViTs and add convolutional inductive bias, **our SPViT prunes pre-trained ViT models into accurate and compact hybrid models by pruning self-attentions into convolutional layers**. Thanks to the proposed weight-sharing scheme between self-attention and convolutional layers that cast the search problem as finding which subset of parameters to use, our **SPViT has significantly reduced search cost**.
 
+***
+
+### Experimental results:
+
+We provide experimental results and pre-trained models for SPViT. Note that the performance for SPViT-Swin is higher than the ones reported in [here](https://arxiv.org/abs/2111.11802), since we fixed one bug that didn't properly initialize batch-normalization layers.
+
+| Name          | Acc@1 | Acc@5 | # parameters | FLOPs | Model |
+| :------------ | :---: | :---: | ------------ | ----- | ----- |
+| SPViT-DeiT-Ti | 70.7  | 90.3  | 4.9M         | 1.0G  |       |
+| SPViT-DeiT-S  | 78.3  | 94.3  | 16.4M        | 3.3G  |       |
+| SPViT-DeiT-B  | 81.5  | 95.6  | 62.3M        | 11.7  |       |
+
+| Name          | Acc@1 | Acc@5 | # parameters | FLOPs | Model |
+| :------------ | :---: | :---: | ------------ | ----- | ----- |
+| SPViT-Swin-Ti | 80.1  | 94.9  | 26.3M        | 3.3   |       |
+| SPViT-Swin-S  | 82.4  | 96.0  | 39.2M        | 6.1   |       |
+| SPViT-Swin-B  | 83.2  | 96.3  | 68.0M        | 11.4  |       |
+
 ### Getting started:
 
 In this repository, we provide code for pruning two representative ViT models.
