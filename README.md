@@ -26,7 +26,7 @@ We provide experimental results and pre-trained models for SPViT. Note that the 
 | :------------ | :---: | :---: | ------------ | ----- | ------------------------------------------------------------ |
 | SPViT-DeiT-Ti | 70.7  | 90.3  | 4.9M         | 1.0G  | [Model](https://github.com/zhuang-group/SPViT/releases/download/1.0/spvit_deit_ti_l200_t10.pth) |
 | SPViT-DeiT-S  | 78.3  | 94.3  | 16.4M        | 3.3G  | [Model](https://github.com/zhuang-group/SPViT/releases/download/1.0/spvit_deit_sm_l30_t32.pth) |
-| SPViT-DeiT-B  | 81.5  | 95.6  | 62.3M        | 11.7G | [Model](https://github.com/zhuang-group/SPViT/releases/download/1.0/spvit_deit_bs_l006_t100.pth) |
+| SPViT-DeiT-B  | 81.6  | 95.5  | 62.3M        | 11.7G | [Model](https://github.com/zhuang-group/SPViT/releases/download/1.0/spvit_deit_bs_l006_t100.pth) |
 
 | Name          | Acc@1 | Acc@5 | # parameters | FLOPs | Model                                                        |
 | :------------ | :---: | :---: | ------------ | ----- | ------------------------------------------------------------ |
