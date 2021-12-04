@@ -6,7 +6,7 @@
 
 ><h3><strong><i>🚀 News</i></strong></h3>
 >
->[2020-12-04]: Release pre-trained models.
+>[2021-12-04]: Release pre-trained models.
 >
 >[2021-11-25]: Release code.
 
