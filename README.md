@@ -20,7 +20,7 @@ To reduce the massive computational resource consumption for ViTs and add convol
 
 ### Experimental results:
 
-We provide experimental results and pre-trained models for SPViT. Note that the performance for SPViT-Swin is higher than the ones reported in [here](https://arxiv.org/abs/2111.11802), since we fixed one bug that didn't properly initialize batch-normalization layers.
+We provide experimental results and pre-trained models for SPViT. Note that the performance for SPViT-Swin is higher than the ones reported in [here](https://arxiv.org/abs/2111.11802), since we fixed one bug that some layers were not initialized properly.
 
 | Name          | Acc@1 | Acc@5 | # parameters | FLOPs | Model                                                        |
 | :------------ | :---: | :---: | ------------ | ----- | ------------------------------------------------------------ |
