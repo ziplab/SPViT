@@ -47,7 +47,7 @@ If you find our paper useful, please consider cite:
 
 ```
 @article{he2021Pruning,
-  title={Pruning Self-attentions into Convolutional Layersin Single Path},
+  title={Pruning Self-attentions into Convolutional Layers in Single Path},
   author={He, Haoyu and Liu, Jing and Pan, Zizheng and Cai, Jianfei and Zhang, Jing and Tao, Dacheng and Zhuang, Bohan},
   journal={arXiv preprint arXiv:2111.11802},
   year={2021}
