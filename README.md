@@ -20,12 +20,13 @@ To reduce the massive computational resource consumption for ViTs and add convol
 
 ### Experimental results:
 
-We provide experimental results and pre-trained models for SPViT. Note that the performance for SPViT-Swin is higher than the ones reported in [here](https://arxiv.org/abs/2111.11802), since we fixed one bug that some layers were not initialized properly.
+We provide experimental results and pre-trained models for SPViT:
 
 | Name          | Acc@1 | Acc@5 | # parameters | FLOPs | Model                                                        |
 | :------------ | :---: | :---: | ------------ | ----- | ------------------------------------------------------------ |
 | SPViT-DeiT-Ti | 70.7  | 90.3  | 4.9M         | 1.0G  | [Model](https://github.com/zhuang-group/SPViT/releases/download/1.0/spvit_deit_ti_l200_t10.pth) |
 | SPViT-DeiT-S  | 78.3  | 94.3  | 16.4M        | 3.3G  | [Model](https://github.com/zhuang-group/SPViT/releases/download/1.0/spvit_deit_sm_l30_t32.pth) |
+| SPViT-DeiT-B  | 81.5  | 95.7  | 46.2M        | 8.3G  | [Model](https://github.com/zhuang-group/SPViT/releases/download/1.0/spvit_deit_bs_l008_t60.pth) |
 | SPViT-DeiT-B  | 81.6  | 95.5  | 62.3M        | 11.7G | [Model](https://github.com/zhuang-group/SPViT/releases/download/1.0/spvit_deit_bs_l006_t100.pth) |
 
 | Name          | Acc@1 | Acc@5 | # parameters | FLOPs | Model                                                        |
