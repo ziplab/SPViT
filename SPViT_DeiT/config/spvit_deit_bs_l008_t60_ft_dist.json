@@ -1,9 +1,9 @@
 {
-  "model": "spvit_deit_dist_base_patch16_224",
+  "model": "spvit_deit_base_patch16_224",
   "batch_size": 128,
   "data_path": "data/imagenet",
   "data_set": "IMNET",
-  "exp_name": "spvit_deit_bs_l008_t60_ft_cnndistv2",
+  "exp_name": "spvit_deit_bs_l008_t60_ft_dist",
   "input_size": 224,
   "patch_size": 16,
   "num_workers": 10,
@@ -21,6 +21,5 @@
   "warmup_epochs": 0,
   "teacher_model": "regnety_160",
   "teacher_path": "https://dl.fbaipublicfiles.com/deit/regnety_160-a5fe301d.pth",
-  "distillation_type": "hard",
-  "our_distillation": ""
+  "distillation_type": "hard"
 }

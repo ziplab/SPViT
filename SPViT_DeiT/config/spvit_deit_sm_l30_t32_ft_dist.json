@@ -3,7 +3,7 @@
   "batch_size": 128,
   "data_path": "data/imagenet",
   "data_set": "IMNET",
-  "exp_name": "spvit_deit_sm_l30_t32_ft_cnndistv2",
+  "exp_name": "spvit_deit_sm_l30_t32_ft_dist",
   "input_size": 224,
   "patch_size": 16,
   "num_workers": 10,
@@ -21,5 +21,5 @@
   "warmup_epochs": 0,
   "teacher_model": "regnety_160",
   "teacher_path": "https://dl.fbaipublicfiles.com/deit/regnety_160-a5fe301d.pth",
-  "distillation_type": "hard",
+  "distillation_type": "hard"
 }

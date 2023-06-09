@@ -22,7 +22,7 @@ EXTRA:
   alpha: 1e2
   theta: 1.5
   assigned_indicators: [[[1.0, 0.0, 0.0], [0.0, 0.0, 0.0]], [[1.0, 0.0, 0.0], [0.0, 0.0, 0.0]], [[1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]], [[1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]]
-  searching_model: 'ffn_indicators/spvit_swin_sm_l04_t55_search_14epoch.pth'
+  searching_model: 'ffn_indicators/spvit_swin_t_l28_t32_search_12epoch.pth'
   distillation_type: 'hard'
 TRAIN:
   EPOCHS: 200

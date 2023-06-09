@@ -26,16 +26,19 @@ We provide experimental results and pre-trained models for SPViT:
 
 | Name          | Acc@1 | Acc@5 | # parameters | FLOPs | Model                                                        |
 | :------------ | :---: | :---: | ------------ | ----- | ------------------------------------------------------------ |
-| SPViT-DeiT-Ti | 70.7  | 90.3  | 4.9M         | 1.0G  | [Model](https://github.com/zhuang-group/SPViT/releases/download/1.0/spvit_deit_ti_l200_t10.pth) |
-| SPViT-DeiT-S  | 78.3  | 94.3  | 16.4M        | 3.3G  | [Model](https://github.com/zhuang-group/SPViT/releases/download/1.0/spvit_deit_sm_l30_t32.pth) |
-| SPViT-DeiT-B  | 81.5  | 95.7  | 46.2M        | 8.3G  | [Model](https://github.com/zhuang-group/SPViT/releases/download/1.0/spvit_deit_bs_l008_t60.pth) |
-| SPViT-DeiT-B  | 81.6  | 95.5  | 62.3M        | 11.7G | [Model](https://github.com/zhuang-group/SPViT/releases/download/1.0/spvit_deit_bs_l006_t100.pth) |
+| SPViT-DeiT-Ti | 70.7  | 90.3  | 4.9M         | 1.0G  | [Model](https://github.com/ziplab/SPViT/releases/download/1.0/spvit_deit_ti_l200_t10.pth) |
+| SPViT-DeiT-Ti* | 73.2  | 91.4  | 4.9M         | 1.0G  | [Model](https://github.com/ziplab/SPViT/releases/download/1.0/spvit_deit_ti_l200_t10_dist.pth) |
+| SPViT-DeiT-S  | 78.3  | 94.3  | 16.4M        | 3.3G  | [Model](https://github.com/ziplab/SPViT/releases/download/1.0/spvit_deit_sm_l30_t32.pth) |
+| SPViT-DeiT-S*  | 80.3  | 95.1  | 16.4M        | 3.3G  | [Model](https://github.com/ziplab/SPViT/releases/download/1.0/spvit_deit_sm_l30_t32_dist.pth) |
+| SPViT-DeiT-B  | 81.5  | 95.7  | 46.2M        | 8.3G  | [Model](https://github.com/ziplab/SPViT/releases/download/1.0/spvit_deit_bs_l008_t60.pth) |
+| SPViT-DeiT-B*  | 82.4  | 96.1  | 46.2M        | 8.3G  | [Model](https://github.com/ziplab/SPViT/releases/download/1.0/spvit_deit_bs_l008_t60_dist.pth) |
 
 | Name          | Acc@1 | Acc@5 | # parameters | FLOPs | Model                                                        |
 | :------------ | :---: | :---: | ------------ | ----- | ------------------------------------------------------------ |
-| SPViT-Swin-Ti | 80.1  | 94.9  | 26.3M        | 3.3G  | [Model](https://github.com/zhuang-group/SPViT/releases/download/1.0/spvit_swin_t_l28_t32.pth) |
-| SPViT-Swin-S  | 82.4  | 96.0  | 39.2M        | 6.1G  | [Model](https://github.com/zhuang-group/SPViT/releases/download/1.0/spvit_swin_sm_l04_t55.pth) |
-| SPViT-Swin-B  | 83.2  | 96.3  | 68.0M        | 11.4G | [Model](https://github.com/zhuang-group/SPViT/releases/download/1.0/spvit_swin_bs_l01_t100.pth) |
+| SPViT-Swin-Ti | 80.1  | 94.9  | 26.3M        | 3.3G  | [Model](https://github.com/ziplab/SPViT/releases/download/1.0/spvit_swin_t_l28_t32.pth) |
+| SPViT-Swin-Ti* | 81.0  | 95.3  | 26.3M        | 3.3G  | [Model](https://github.com/ziplab/SPViT/releases/download/1.0/spvit_swin_t_l28_t32_dist.pth) |
+| SPViT-Swin-S  | 82.4  | 96.0  | 39.2M        | 6.1G  | [Model](https://github.com/ziplab/SPViT/releases/download/1.0/spvit_swin_sm_l04_t55.pth) |
+| SPViT-Swin-S*  | 83.0  | 96.4  | 39.2M        | 6.1G  | [Model](https://github.com/ziplab/SPViT/releases/download/1.0/spvit_swin_sm_l04_t55_dist.pth) |
 
 ### Getting started:
 

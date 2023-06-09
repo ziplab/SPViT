@@ -119,19 +119,19 @@ We provide several examples for evaluating pre-trained SPViT models.
 To evaluate SPViT-Swin-T pre-trained models, run:
 
 ```bash
-python -m torch.distributed.launch --nproc_per_node 8 --master_port 3132 main_pruning.py --cfg configs/spvit_swin_tn_l28_t32_ft.yaml --resume [PRE-TRAINED MODEL PATH] --opts EVAL_MODE True
+python -m torch.distributed.launch --nproc_per_node 1 --master_port 3132 main_pruning.py --cfg configs/spvit_swin_tn_l28_t32_ft.yaml --resume [PRE-TRAINED MODEL PATH] --opts EVAL_MODE True
 ```
 
 To evaluate SPViT-Swin-S pre-trained models, run:
 
 ```bash
-python -m torch.distributed.launch --nproc_per_node 8 --master_port 3132 main_pruning.py --cfg configs/spvit_swin_sm_l04_t55_ft.yaml --resume [PRE-TRAINED MODEL PATH] --opts EVAL_MODE True
+python -m torch.distributed.launch --nproc_per_node 1 --master_port 3132 main_pruning.py --cfg configs/spvit_swin_sm_l04_t55_ft.yaml --resume [PRE-TRAINED MODEL PATH] --opts EVAL_MODE True
 ```
 
 To evaluate SPViT-Swin-B pre-trained models, run:
 
 ```bash
-python -m torch.distributed.launch --nproc_per_node 8 --master_port 3132 main_pruning.py --cfg configs/spvit_swin_bs_l01_t100_ft.yaml --resume [PRE-TRAINED MODEL PATH] --opts EVAL_MODE True
+python -m torch.distributed.launch --nproc_per_node 1 --master_port 3132 main_pruning.py --cfg configs/spvit_swin_bs_l01_t100_ft.yaml --resume [PRE-TRAINED MODEL PATH] --opts EVAL_MODE True
 ```
 
 #### 

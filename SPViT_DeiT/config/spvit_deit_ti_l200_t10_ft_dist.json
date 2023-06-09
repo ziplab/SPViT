@@ -3,7 +3,7 @@
   "batch_size": 256,
   "data_path": "data/imagenet",
   "data_set": "IMNET",
-  "exp_name": "spvit_deit_ti_l200_t10_ft_cnndistv2",
+  "exp_name": "spvit_deit_ti_l200_t10_ft_dist",
   "input_size": 224,
   "patch_size": 16,
   "num_workers": 10,
