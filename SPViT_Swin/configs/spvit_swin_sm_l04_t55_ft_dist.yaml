@@ -1,0 +1,31 @@
+MODEL:
+  TYPE: spvit_swin
+  NAME: spvit_swin_sm_l04_t55_ft_dist
+  DROP_PATH_RATE: 0.3
+  SWIN:
+    EMBED_DIM: 96
+    DEPTHS: [ 2, 2, 18, 2 ]
+    NUM_HEADS: [ 3, 6, 12, 24 ]
+    WINDOW_SIZE: 7
+DATA:
+  NUM_WORKERS: 10
+  BATCH_SIZE: 128
+  DATA_PATH: dataset/imagenet
+  DATASET: imagenet
+EXTRA:
+  loss_lambda: 0.4
+  arc_decay: 150
+  target_flops: 5.5
+  arc_warmup: 0
+  arc_min_lr: 5e-4
+  architecture_lr: 5e-4
+  alpha: 1e2
+  theta: 1.5
+  assigned_indicators: [[[1.0, 0.0, 0.0], [0.0, 0.0, 0.0]], [[1.0, 1.0, 1.0], [1.0, 1.0, 1.0]], [[1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]], [[1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]]
+  searching_model: 'ffn_indicators/spvit_swin_sm_l04_t55_search_14epoch.pth'
+  distillation_type: 'hard'
+TRAIN:
+  EPOCHS: 200
+  WARMUP_EPOCHS: 0
+  BASE_LR: 5e-5
+#EVAL_MODE: True

@@ -5,6 +5,7 @@
 ***
 
 ><h3><strong><i>🚀 News</i></strong></h3>
+>[2023-06-09]: Update distillation configurations and pre-trained checkpoints.
 >
 >[2021-12-04]: Release pre-trained models.
 >

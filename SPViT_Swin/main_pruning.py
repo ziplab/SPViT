@@ -30,6 +30,8 @@ from utils import load_checkpoint_pruning, get_grad_norm, auto_resume_helper, \
     reduce_tensor, save_best_checkpoint_pruning, save_last_checkpoint_pruning, \
     save_ffn_indicators
 from tensorboardX import SummaryWriter
+from timm.models import create_model
+from utils import DistillationLoss
 
 try:
     # noinspection PyUnresolvedReferences
@@ -137,6 +139,29 @@ def main(config):
     else:
         criterion = torch.nn.CrossEntropyLoss()
 
+    teacher_model = None
+    if config.EXTRA.distillation_type != 'none':
+        assert config.EXTRA.teacher_path, 'need to specify teacher-path when using distillation'
+        print(f"Creating teacher model: {config.EXTRA.teacher_model}")
+        teacher_model = create_model(
+            config.EXTRA.teacher_model,
+            pretrained=False,
+            num_classes=config.MODEL.NUM_CLASSES,
+            global_pool='avg',
+        )
+        if config.EXTRA.teacher_path.startswith('https'):
+            checkpoint = torch.hub.load_state_dict_from_url(
+                config.EXTRA.teacher_path, map_location='cpu', check_hash=True)
+        else:
+            checkpoint = torch.load(config.EXTRA.teacher_path, map_location='cpu')
+        teacher_model.load_state_dict(checkpoint['model'])
+        teacher_model.to('cuda')
+        teacher_model.eval()
+
+    criterion = DistillationLoss(
+        criterion, teacher_model, config.EXTRA.distillation_type, config.EXTRA.distillation_alpha, config.EXTRA.distillation_tau
+    )
+
     max_accuracy = 0.0
 
     if config.TRAIN.AUTO_RESUME:
@@ -179,7 +204,7 @@ def main(config):
             save_last_checkpoint_pruning(config, epoch, model_without_ddp, max_accuracy, optimizer1, optimizer2, lr_scheduler1, lr_scheduler2, logger)
 
             # Save FFN indicators
-            if epoch % 10 == 0 and not config.EXTRA.assigned_indicators and epoch!=0:
+            if epoch % 1 == 0 and not config.EXTRA.assigned_indicators and epoch!=0:
                 save_ffn_indicators(config, epoch, model_without_ddp, logger)
 
         acc1, acc5, loss = validate(config, data_loader_val, model, epoch)
@@ -226,7 +251,7 @@ def train_one_epoch(config, model, criterion, data_loader, optimizer1, optimizer
         outputs, msa_indicator_list, msa_threshold_list, ffn_indicator_list, ffn_threshold_list = model(samples)
 
         if config.TRAIN.ACCUMULATION_STEPS > 1:
-            cls_loss = criterion(outputs, targets)
+            cls_loss = criterion(samples, outputs, targets)
 
             if config.EXTRA.assigned_indicators:
                 loss = cls_loss / config.TRAIN.ACCUMULATION_STEPS
@@ -265,7 +290,7 @@ def train_one_epoch(config, model, criterion, data_loader, optimizer1, optimizer
                 lr_scheduler1.step_update(epoch * num_steps + idx)
                 lr_scheduler2.step_update(epoch * num_steps + idx)
         else:
-            cls_loss = criterion(outputs, targets)
+            cls_loss = criterion(samples, outputs, targets)
             if config.EXTRA.assigned_indicators:
                 bop_loss = torch.zeros_like(cls_loss)
                 loss = cls_loss

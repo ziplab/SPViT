@@ -33,18 +33,13 @@ class DistillationLoss(torch.nn.Module):
                 in the first position and the distillation predictions as the second output
             labels: the labels for the base criterion
         """
-        outputs_kd = None
-        if not isinstance(outputs, torch.Tensor):
-            # assume that the model outputs a tuple of [outputs, outputs_kd]
-            outputs, outputs_kd = outputs
+
+        outputs_dist = outputs
+
         base_loss = self.base_criterion(outputs, labels)
         if self.distillation_type == 'none':
             return base_loss
 
-        if outputs_kd is None:
-            raise ValueError("When knowledge distillation is enabled, the model is "
-                             "expected to return a Tuple[Tensor, Tensor] with the output of the "
-                             "class_token and the dist_token")
         # don't backprop throught the teacher
         with torch.no_grad():
             teacher_outputs = self.teacher_model(inputs)
@@ -54,13 +49,13 @@ class DistillationLoss(torch.nn.Module):
             # taken from https://github.com/peterliht/knowledge-distillation-pytorch/blob/master/model/net.py#L100
             # with slight modifications
             distillation_loss = F.kl_div(
-                F.log_softmax(outputs_kd / T, dim=1),
+                F.log_softmax(outputs_dist / T, dim=1),
                 F.log_softmax(teacher_outputs / T, dim=1),
                 reduction='sum',
                 log_target=True
-            ) * (T * T) / outputs_kd.numel()
+            ) * (T * T) / outputs_dist.numel()
         elif self.distillation_type == 'hard':
-            distillation_loss = F.cross_entropy(outputs_kd, teacher_outputs.argmax(dim=1))
+            distillation_loss = F.cross_entropy(outputs_dist, teacher_outputs.argmax(dim=1))
 
         loss = base_loss * (1 - self.alpha) + distillation_loss * self.alpha
         return loss

@@ -160,6 +160,12 @@ _C.EXTRA.alpha = 1e2 # Softmax temperature for ensembling heads
 _C.EXTRA.loss_lambda = 0.14
 _C.EXTRA.target_flops = 3.6
 
+_C.EXTRA.teacher_model = 'regnety_160'
+_C.EXTRA.teacher_path = 'https://dl.fbaipublicfiles.com/deit/regnety_160-a5fe301d.pth'
+_C.EXTRA.distillation_type = 'none'
+_C.EXTRA.distillation_alpha = 0.5
+_C.EXTRA.distillation_tau = 1.0
+
 # -----------------------------------------------------------------------------
 # Testing settings
 # -----------------------------------------------------------------------------

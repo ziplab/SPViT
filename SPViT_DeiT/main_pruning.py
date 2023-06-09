@@ -1,6 +1,6 @@
 # Copyright (c) 2015-present, Facebook, Inc.
 # All rights reserved.
-# Modifications copyright (c) 2021 Zhuang AI Group, Haoyu He
+# Modifications copyright (c) 2023 Zhuang AI Group, Haoyu He
 
 import random
 import datetime
@@ -268,7 +268,7 @@ def main():
             pretrained=False,
             num_classes=args.nb_classes,
             global_pool='avg',
-            loss_lambda=args.loss_lambda
+            # loss_lambda=args.loss_lambda
         )
         if args.teacher_path.startswith('https'):
             checkpoint = torch.hub.load_state_dict_from_url(
