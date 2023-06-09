@@ -40,6 +40,7 @@ We provide experimental results and pre-trained models for SPViT:
 | SPViT-Swin-S  | 82.4  | 96.0  | 39.2M        | 6.1G  | [Model](https://github.com/ziplab/SPViT/releases/download/1.0/spvit_swin_sm_l04_t55.pth) |
 | SPViT-Swin-S*  | 83.0  | 96.4  | 39.2M        | 6.1G  | [Model](https://github.com/ziplab/SPViT/releases/download/1.0/spvit_swin_sm_l04_t55_dist.pth) |
 
+&ast; indicates knowledge distillation.
 ### Getting started:
 
 In this repository, we provide code for pruning two representative ViT models.
