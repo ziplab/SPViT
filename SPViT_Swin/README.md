@@ -134,6 +134,25 @@ To evaluate SPViT-Swin-B pre-trained models, run:
 python -m torch.distributed.launch --nproc_per_node 1 --master_port 3132 main_pruning.py --cfg configs/spvit_swin_bs_l01_t100_ft.yaml --resume [PRE-TRAINED MODEL PATH] --opts EVAL_MODE True
 ```
 
+After fine-tuning, you can optimize your checkpoint to a smaller size with the following code:
+```bash
+python post_training_optimize_checkpoint.py YOUR_CHECKPOINT_PATH 
+```
+The optimized checkpoint can be evaluated by replacing `UnifiedWindowAttention` with `UnifiedWindowAttentionParamOpt` and we have provided an example below:
+```bash
+main_pruning.py
+--cfg
+configs/spvit_swin_tn_l28_t32_ft_dist.yaml
+--resume
+model/spvit_swin_t_l28_t32_dist_optimized.pth
+--opts
+EVAL_MODE
+True
+EXTRA.attention_type
+UnifiedWindowAttentionParamOpt
+--local_rank
+0
+```
 #### 
 
 #### TODO:

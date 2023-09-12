@@ -126,6 +126,12 @@ To evaluate SPViT-DeiT-B pre-trained models, run:
 python -m torch.distributed.launch --nproc_per_node=1 --master_port=3146 --use_env main_pruning.py --config config/spvit_deit_bs_l006_t100_ft.json --resume [PRE-TRAINED MODEL PATH] --eval
 ```
 
+After fine-tuning, you can optimize your checkpoint to a smaller size with the following code:
+```bash
+python post_training_optimize_checkpoint.py YOUR_CHECKPOINT_PATH 
+```
+The optimized checkpoint can be evaluated by replacing `UnifiedAttention` with `UnifiedAttentionParamOpt` and we have provided an example in `SPViT_DeiT/config/spvit_deit_bs_l008_t60_ft_param_opt.json`.
+
 #### TODO:
 
 ```

@@ -165,6 +165,7 @@ _C.EXTRA.teacher_path = 'https://dl.fbaipublicfiles.com/deit/regnety_160-a5fe301
 _C.EXTRA.distillation_type = 'none'
 _C.EXTRA.distillation_alpha = 0.5
 _C.EXTRA.distillation_tau = 1.0
+_C.EXTRA.attention_type = 'UnifiedWindowAttention'
 
 # -----------------------------------------------------------------------------
 # Testing settings

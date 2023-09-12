@@ -50,7 +50,9 @@ def build_model(config, ffn_indicators=None):
                                 alpha=config.EXTRA.alpha,
                                 theta=config.EXTRA.theta,
                                 msa_indicators=config.EXTRA.assigned_indicators,
-                                ffn_indicators=ffn_indicators)
+                                ffn_indicators=ffn_indicators,
+                                        attention_type=config.EXTRA.attention_type
+                                        )
     else:
         raise NotImplementedError(f"Unkown model: {model_type}")
 

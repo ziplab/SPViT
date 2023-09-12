@@ -4,7 +4,7 @@
     <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignoredPackages">
         <value>
-          <list size="16">
+          <list size="21">
             <item index="0" class="java.lang.String" itemvalue="torch" />
             <item index="1" class="java.lang.String" itemvalue="torchvision" />
             <item index="2" class="java.lang.String" itemvalue="opencv-python" />
@@ -21,6 +21,11 @@
             <item index="13" class="java.lang.String" itemvalue="scipy" />
             <item index="14" class="java.lang.String" itemvalue="shapely" />
             <item index="15" class="java.lang.String" itemvalue="cython" />
+            <item index="16" class="java.lang.String" itemvalue="scikit-image" />
+            <item index="17" class="java.lang.String" itemvalue="easydict" />
+            <item index="18" class="java.lang.String" itemvalue="ptflops" />
+            <item index="19" class="java.lang.String" itemvalue="PyYAML" />
+            <item index="20" class="java.lang.String" itemvalue="pillow" />
           </list>
         </value>
       </option>

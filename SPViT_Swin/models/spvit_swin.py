@@ -597,6 +597,335 @@ class UnifiedWindowAttention(nn.Module):
         return kernel_indicators
 
 
+class UnifiedWindowAttentionParamOpt(nn.Module):
+    def __init__(self, dim, num_heads=8, window_size=[7, 7], qkv_bias=False, qk_scale=None, attn_drop=0., proj_drop=0.,
+                 alpha=None, theta=None, msa_indicators=None):
+        super().__init__()
+        self.num_heads = num_heads
+        self.window_size = window_size  # Wh, Ww
+
+        self.dim = dim
+        self.head_dim = head_dim = dim // num_heads
+        self.scale = qk_scale or head_dim ** -0.5
+        self.alpha = alpha
+        self.kernels = [1, 3, -1]
+        self.max_kernel_size = 3
+
+        # We use msa_indicators as a flag
+        self.msa_indicators = msa_indicators
+
+        if msa_indicators is None:
+
+            msa_type = 'search'
+
+            # define a parameter table of relative position bias
+            self.relative_position_bias_table = nn.Parameter(
+                torch.zeros((2 * window_size[0] - 1) * (2 * window_size[1] - 1), num_heads))  # 2*Wh-1 * 2*Ww-1, nH
+
+            # get pair-wise relative position index for each token inside the window
+            coords_h = torch.arange(self.window_size[0])
+            coords_w = torch.arange(self.window_size[1])
+            coords = torch.stack(torch.meshgrid([coords_h, coords_w]))  # 2, Wh, Ww
+            coords_flatten = torch.flatten(coords, 1)  # 2, Wh*Ww
+            relative_coords = coords_flatten[:, :, None] - coords_flatten[:, None, :]  # 2, Wh*Ww, Wh*Ww
+            relative_coords = relative_coords.permute(1, 2, 0).contiguous()  # Wh*Ww, Wh*Ww, 2
+            relative_coords[:, :, 0] += self.window_size[0] - 1  # shift to start from 0
+            relative_coords[:, :, 1] += self.window_size[1] - 1
+            relative_coords[:, :, 0] *= 2 * self.window_size[1] - 1
+            relative_position_index = relative_coords.sum(-1)  # Wh*Ww, Wh*Ww
+            self.register_buffer("relative_position_index", relative_position_index)
+            trunc_normal_(self.relative_position_bias_table, std=.02)
+
+            # Preparing convolution indexes
+            rel_indices = self.get_rel_indices(self.window_size[0] * self.window_size[1])
+            rel_indices_pad = self.get_rel_indices((self.window_size[0] + 2) * (self.window_size[1] + 2))
+
+            self.qk = nn.Linear(dim, dim * 2, bias=qkv_bias)
+            self.v = nn.Linear(dim, dim, bias=True)
+            self.attn_drop = nn.Dropout(attn_drop)
+            self.proj = nn.Linear(dim, dim, bias=True)
+            self.proj_drop = nn.Dropout(proj_drop)
+            self.softmax = nn.Softmax(dim=-1)
+
+            self.att_mask_1x1 = self.conv_attmask_init(1, rel_indices=rel_indices)
+            self.conv_1x1_idx = (self.att_mask_1x1 > 1e-5).nonzero()
+
+            self.att_mask_3x3 = self.conv_attmask_init(3, rel_indices=rel_indices_pad)
+            conv_3x3_idx_tmp = (self.att_mask_3x3 > 1e-5).nonzero()
+            conv_3x3_idx_list = []
+            for idx in range((self.window_size[0] + 2) * (self.window_size[1] + 2)):
+                token_idxes = torch.where(conv_3x3_idx_tmp[:, 2] == idx)[0]
+                token_idxes = torch.stack([conv_3x3_idx_tmp[token_idxes][:, 3], conv_3x3_idx_tmp[token_idxes][:, 1]], dim=1)
+                conv_3x3_idx_list.append(token_idxes)
+            self.conv_3x3_idx = torch.stack(conv_3x3_idx_list, dim=0).view(-1, 2)
+
+            self.bn_1x1 = nn.BatchNorm2d(head_dim)
+            self.bn_3x3 = nn.BatchNorm2d(head_dim)
+            self.conv_act = nn.ReLU()
+
+            # Learnable parameters
+            self.register_parameter('kernel_thresholds_full', nn.Parameter(torch.tensor([theta] * 3)))
+            self.register_parameter("head_probs", nn.Parameter(torch.ones([self.num_heads, (self.max_kernel_size**2)])))
+
+        elif not msa_indicators[0]:
+
+            msa_type = 'skip-connection'
+
+        elif not msa_indicators[1]:
+
+            msa_type = '1x1 Bconv'
+            self.bconv = nn.Sequential(
+                nn.Conv2d(dim, head_dim, kernel_size=1),
+                nn.BatchNorm2d(head_dim),
+                nn.ReLU(),
+                nn.Conv2d(head_dim, dim, kernel_size=1),
+            )
+
+        elif not msa_indicators[2]:
+
+            msa_type = '3x3 Bconv'
+            self.bconv = nn.Sequential(
+                nn.Conv2d(dim, head_dim, kernel_size=3, stride=1, padding=1),
+                nn.BatchNorm2d(head_dim),
+                nn.ReLU(),
+                nn.Conv2d(head_dim, dim, kernel_size=1),
+            )
+
+        elif msa_indicators[2]:
+
+            msa_type = 'msa'
+
+            # define a parameter table of relative position bias
+            self.relative_position_bias_table = nn.Parameter(
+                torch.zeros((2 * window_size[0] - 1) * (2 * window_size[1] - 1), num_heads))  # 2*Wh-1 * 2*Ww-1, nH
+
+            # get pair-wise relative position index for each token inside the window
+            coords_h = torch.arange(self.window_size[0])
+            coords_w = torch.arange(self.window_size[1])
+            coords = torch.stack(torch.meshgrid([coords_h, coords_w]))  # 2, Wh, Ww
+            coords_flatten = torch.flatten(coords, 1)  # 2, Wh*Ww
+            relative_coords = coords_flatten[:, :, None] - coords_flatten[:, None, :]  # 2, Wh*Ww, Wh*Ww
+            relative_coords = relative_coords.permute(1, 2, 0).contiguous()  # Wh*Ww, Wh*Ww, 2
+            relative_coords[:, :, 0] += self.window_size[0] - 1  # shift to start from 0
+            relative_coords[:, :, 1] += self.window_size[1] - 1
+            relative_coords[:, :, 0] *= 2 * self.window_size[1] - 1
+            relative_position_index = relative_coords.sum(-1)  # Wh*Ww, Wh*Ww
+            self.register_buffer("relative_position_index", relative_position_index)
+            trunc_normal_(self.relative_position_bias_table, std=.02)
+
+            self.qk = nn.Linear(dim, dim * 2, bias=qkv_bias)
+            self.v = nn.Linear(dim, dim, bias=True)
+
+            self.attn_drop = nn.Dropout(attn_drop)
+            self.proj = nn.Linear(dim, dim, bias=True)
+            self.proj_drop = nn.Dropout(proj_drop)
+
+            self.softmax = nn.Softmax(dim=-1)
+        else:
+            raise NotImplementedError
+
+        self.apply(self._init_weights)
+
+    def _init_weights(self, m):
+        if isinstance(m, nn.Linear):
+            trunc_normal_(m.weight, std=.02)
+            if isinstance(m, nn.Linear) and m.bias is not None:
+                nn.init.constant_(m.bias, 0)
+        elif isinstance(m, nn.LayerNorm):
+            nn.init.constant_(m.bias, 0)
+            nn.init.constant_(m.weight, 1.0)
+        elif isinstance(m, nn.BatchNorm2d):
+            nn.init.constant_(m.weight, 1)
+            nn.init.constant_(m.bias, 0)
+        elif isinstance(m, nn.Conv2d):
+            nn.init.kaiming_normal_(m.weight, mode='fan_out')
+            if m.bias is not None:
+                nn.init.constant_(m.bias, 0)
+
+    def forward(self, x, mask=None):
+        if self.msa_indicators is None:
+            return self.search_forward(x, mask)
+        else:
+            return self.finetune_forward(x, mask)
+
+    def search_forward(self, x, mask=None):
+
+        B_, N, C = x.shape
+
+        indicators = self.single_path_parameter_init()
+
+        # MSA computations
+        attn = self.get_attention(x, mask)
+        v_weight = F.linear(x, self.v.weight)
+        v = (v_weight + self.v.bias).reshape(B_, N, -1, C // self.num_heads).permute(0, 2, 1, 3)
+        msa_out = (attn @ v).transpose(1, 2).reshape(B_, N, C)
+        msa_out = self.proj(msa_out)
+
+        # Ensemble heads
+        head_probs = (self.head_probs.view(self.num_heads, (self.max_kernel_size**2)) / self.alpha).softmax(0)
+        new_v_weight = (v_weight.view(B_, N, self.num_heads, self.head_dim).permute(0, 1, 3, 2) @ head_probs).permute(0, 1, 3, 2) # B_ * N * num_heads * head_dim
+        new_v_bias = (self.v.bias.view(self.num_heads, self.head_dim).permute(1, 0) @ head_probs) # head_dim * num_heads
+        new_proj = (self.proj.weight.view(self.dim, self.num_heads, self.head_dim).permute(0, 2, 1) @ head_probs) # dim * head_dim * num_heads
+
+        # Indexing and Conv computations
+        conv_1x1_out = new_v_weight[:, :, 0] + new_v_bias[:, 0]
+        conv_1x1_out = self.conv_act(self.bn_1x1(
+            conv_1x1_out.view(conv_1x1_out.shape[0], int(conv_1x1_out.shape[1] ** 0.5),
+                              int(conv_1x1_out.shape[1] ** 0.5), conv_1x1_out.shape[2]).permute(0, 3, 1, 2))).permute(0, 2, 3, 1)
+        conv_1x1_out = F.linear(conv_1x1_out.reshape(B_, N, -1), new_proj[..., 0])
+
+        # Indexing and Conv computations
+        v_weight_new = F.pad(new_v_weight[:, :, :9].view(B_, self.window_size[0], self.window_size[1], 9, self.head_dim), pad=(0, 0, 0, 0, 1, 1, 1, 1))
+        conv_3x3_out = (v_weight_new.flatten(1, 2)[:, self.conv_3x3_idx[:, 0], self.conv_3x3_idx[:, 1]].view(B_, self.window_size[0] + 2, self.window_size[1] + 2, 9, self.head_dim)[:, 1:8, 1:8].sum(3) + \
+                       torch.sum(new_v_bias[:, :9], dim=1)).permute(0, 3, 1, 2)
+        conv_3x3_out = self.conv_act(self.bn_3x3(conv_3x3_out)).permute(0, 2, 3, 1).flatten(1, 2)
+        conv_3x3_out = F.linear(conv_3x3_out, new_proj[..., :9].sum(-1))
+
+        outputs = indicators[2] * msa_out + \
+                  indicators[1] * (1 - indicators[2]) * (conv_3x3_out + self.proj.bias) + \
+                  indicators[0] * (1 - indicators[1]) * (1 - indicators[2]) * (
+                          conv_1x1_out + self.proj.bias)
+
+        kernel_thresholds = F.sigmoid(torch.stack(self.kernel_thresholds))
+        kernel_indicators = (kernel_thresholds > 0.5).float() - torch.sigmoid(kernel_thresholds - 0.5).detach() + torch.sigmoid(kernel_thresholds - 0.5)
+        self.kernel_indicators = self.kernel_indicators_full = torch.cumprod(kernel_indicators, dim=0)
+
+        outputs = self.proj_drop(outputs)
+
+        return outputs, indicators, F.sigmoid(self.kernel_thresholds_full)
+
+    def finetune_forward(self, x, mask=None):
+
+        B_, N, C = x.shape
+
+        indicators, used_kernels = self.msa_indicators, []
+
+        # We didn't handle masks in 3x3 convolution
+        if not indicators[0]:
+            x = x
+        elif not indicators[1]:
+
+            x = x.view(x.shape[0], int(x.shape[1] ** 0.5), int(x.shape[1] ** 0.5),
+                                   x.shape[2]).permute(0, 3, 1, 2)
+            x = self.bconv(x).permute(0, 2, 3, 1).flatten(1, 2)
+
+        elif not indicators[2]:
+
+            x = x.view(x.shape[0], int(x.shape[1] ** 0.5), int(x.shape[1] ** 0.5),
+                       x.shape[2]).permute(0, 3, 1, 2)
+            x = self.bconv(x).permute(0, 2, 3, 1).flatten(1, 2)
+
+        else:
+            v = self.v(x).reshape(B_, N, self.num_heads, C // self.num_heads).permute(0, 2, 1, 3)
+            attn = self.get_attention(x, mask)
+            x = (attn @ v).transpose(1, 2).reshape(B_, N, C)
+            x = self.proj(x)
+            x = self.proj_drop(x)
+
+        return x, None, None
+
+    def get_attention(self, x, mask=None):
+        B_, N, C = x.shape
+        qk = self.qk(x).reshape(B_, N, 2, self.num_heads, C // self.num_heads).permute(2, 0, 3, 1, 4)
+        q, k = qk[0], qk[1]  # make torchscript happy (cannot use tensor as tuple)
+
+        q = q * self.scale
+        attn = (q @ k.transpose(-2, -1))
+
+        relative_position_bias = self.relative_position_bias_table[self.relative_position_index.view(-1)].view(
+            self.window_size[0] * self.window_size[1], self.window_size[0] * self.window_size[1], -1)  # Wh*Ww,Wh*Ww,nH
+        relative_position_bias = relative_position_bias.permute(2, 0, 1).contiguous()  # nH, Wh*Ww, Wh*Ww
+        attn = attn + relative_position_bias.unsqueeze(0)
+
+        if mask is not None:
+            nW = mask.shape[0]
+            attn = attn.view(B_ // nW, nW, self.num_heads, N, N) + mask.unsqueeze(1).unsqueeze(0)
+            attn = attn.view(-1, self.num_heads, N, N)
+            attn = self.softmax(attn)
+        else:
+            attn = self.softmax(attn)
+
+        attn = self.attn_drop(attn)
+        return attn
+
+    def conv_attmask_init(self, kernel_size=1, rel_indices=None):
+
+        center = (kernel_size - 1) / 2 if kernel_size % 2 == 0 else kernel_size // 2
+
+        pos_proj0 = torch.zeros(kernel_size ** 2, 3).to(rel_indices.device)
+        for h1 in range(kernel_size):
+            for h2 in range(kernel_size):
+                position = h1 + kernel_size * h2
+                pos_proj0[position, 2] = -1
+                pos_proj0[position, 1] = 2 * (h1 - center) * 1
+                pos_proj0[position, 0] = 2 * (h2 - center) * 1
+
+        # Get the same order as the value/projection matrix
+        pos_proj = torch.zeros(kernel_size ** 2, 3).to(rel_indices.device)
+        if kernel_size == 1:
+            pos_proj = pos_proj0
+        elif kernel_size == 3:
+            pos_proj[0] = pos_proj0[4]
+            pos_proj[1:5] = pos_proj0[0:4]
+            pos_proj[5:9] = pos_proj0[5:9]
+        else:
+            raise NotImplementedError
+
+        pos_proj *= 46
+        rel_indices = rel_indices
+        attmask = torch.matmul(rel_indices, pos_proj.transpose(1, 0)).permute(0, 3, 1, 2)
+
+        return attmask.softmax(dim=-1)
+
+    def get_rel_indices(self, num_patches):
+        img_size = int(num_patches ** .5)
+        rel_indices = torch.zeros(1, num_patches, num_patches, 3)
+        ind = torch.arange(img_size).view(1, -1) - torch.arange(img_size).view(-1, 1)
+        indx = ind.repeat(img_size, img_size)
+        indy = ind.repeat_interleave(img_size, dim=0).repeat_interleave(img_size, dim=1)
+        indd = indx ** 2 + indy ** 2
+        rel_indices[:, :, :, 2] = indd.unsqueeze(0)
+        rel_indices[:, :, :, 1] = indy.unsqueeze(0)
+        rel_indices[:, :, :, 0] = indx.unsqueeze(0)
+        return rel_indices.cuda()
+
+    def flops(self, N):
+
+        # calculate flops for 1 window with token length of N
+        # qkv = self.qkv(x)
+        mhsa_flops = N * self.dim * 3 * self.dim
+        # attn = (q @ k.transpose(-2, -1))
+        mhsa_flops += self.num_heads * N * (self.dim // self.num_heads) * N
+        #  x = (attn @ v)
+        mhsa_flops += self.num_heads * N * N * (self.dim // self.num_heads)
+        # x = self.proj(x)
+        mhsa_flops += N * self.dim * self.dim
+
+        return mhsa_flops
+
+    def single_path_parameter_init(self):
+
+        self.kernel_thresholds = [self.kernel_thresholds_full[0], self.kernel_thresholds_full[1],
+                                  self.kernel_thresholds_full[2]]
+
+        kernel_probs = F.sigmoid(torch.stack(self.kernel_thresholds))
+
+        if self.training:
+            kernel_indicators = bernoulli_sample(kernel_probs)
+        else:
+            kernel_indicators = (kernel_probs > 0.5).float()
+
+        kernel_indicators = torch.cumprod(kernel_indicators, dim=0)
+
+        # Slow down the gradient for less-complex gates
+        if kernel_indicators[0] and kernel_indicators[1] and kernel_indicators[2]:
+            kernel_indicators[1] = kernel_indicators[1].detach()
+        if kernel_indicators[1] and kernel_indicators[0]:
+            kernel_indicators[0] = kernel_indicators[0].detach()
+
+        return kernel_indicators
+
+
 class SwinTransformerBlock(nn.Module):
     r""" Swin Transformer Block.
     Args:
@@ -746,7 +1075,7 @@ class UnifiedSwinTransformerBlock(nn.Module):
     def __init__(self, dim, input_resolution, num_heads, window_size=7, shift_size=0,
                  mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0., drop_path=0.,
                  act_layer=nn.GELU, norm_layer=nn.LayerNorm,
-                 alpha=None, theta=None, msa_indicators=None, ffn_indicators=None):
+                 alpha=None, theta=None, msa_indicators=None, ffn_indicators=None, **kwargs):
         super().__init__()
         self.dim = dim
         self.input_resolution = input_resolution
@@ -761,7 +1090,7 @@ class UnifiedSwinTransformerBlock(nn.Module):
         assert 0 <= self.shift_size < self.window_size, "shift_size must in 0-window_size"
 
         self.norm1 = norm_layer(dim)
-        self.attn = UnifiedWindowAttention(
+        self.attn = eval(kwargs['attention_type'])(
             dim, window_size=to_2tuple(self.window_size), num_heads=num_heads,
             qkv_bias=qkv_bias, qk_scale=qk_scale, attn_drop=attn_drop, proj_drop=drop,
             alpha=alpha, theta=theta, msa_indicators=msa_indicators)
@@ -1020,8 +1349,7 @@ class UnifiedBasicLayer(nn.Module):
                  mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0.,
                  drop_path=0., norm_layer=nn.LayerNorm, downsample=None,
                  use_checkpoint=False,
-                 alpha=None, theta=None, msa_indicators=None, ffn_indicators=None):
-
+                 alpha=None, theta=None, msa_indicators=None, ffn_indicators=None, **kwargs):
 
         super().__init__()
         self.dim = dim
@@ -1030,7 +1358,6 @@ class UnifiedBasicLayer(nn.Module):
         self.use_checkpoint = use_checkpoint
 
         # build blocks
-
         if msa_indicators:
             self.blocks = nn.ModuleList([
                 UnifiedSwinTransformerBlock(dim=dim, input_resolution=input_resolution,
@@ -1042,7 +1369,7 @@ class UnifiedBasicLayer(nn.Module):
                                      drop_path=drop_path[i] if isinstance(drop_path, list) else drop_path,
                                      norm_layer=norm_layer,
                                      alpha=alpha, theta=theta, msa_indicators=msa_indicators[i],
-                                            ffn_indicators=ffn_indicators[i])
+                                            ffn_indicators=ffn_indicators[i], **kwargs)
                 for i in range(depth)])
         else:
             self.blocks = nn.ModuleList([
@@ -1054,7 +1381,7 @@ class UnifiedBasicLayer(nn.Module):
                                      drop=drop, attn_drop=attn_drop,
                                      drop_path=drop_path[i] if isinstance(drop_path, list) else drop_path,
                                      norm_layer=norm_layer,
-                                     alpha=alpha, theta=theta)
+                                     alpha=alpha, theta=theta, **kwargs)
                 for i in range(depth)])
         # patch merging layer
         if downsample is not None:
@@ -1366,7 +1693,8 @@ class SPVisionTransformerSwin(nn.Module):
                                    use_checkpoint=use_checkpoint,
                                    alpha=alpha, theta=theta,
                                    msa_indicators=msa_indicators[i_layer],
-                                   ffn_indicators=ffn_indicators[ffn_idxes[i_layer]:ffn_idxes[i_layer + 1]])
+                                   ffn_indicators=ffn_indicators[ffn_idxes[i_layer]:ffn_idxes[i_layer + 1]],
+                                          **kwargs)
                 self.layers.append(layer)
         else:
             for i_layer in range(self.num_layers):
@@ -1383,7 +1711,8 @@ class SPVisionTransformerSwin(nn.Module):
                                    norm_layer=norm_layer,
                                    downsample=PatchMerging if (i_layer < self.num_layers - 1) else None,
                                    use_checkpoint=use_checkpoint,
-                                   alpha=alpha, theta=theta)
+                                   alpha=alpha, theta=theta,
+                                          **kwargs)
                 self.layers.append(layer)
 
         self.norm = norm_layer(self.num_features)
