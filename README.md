@@ -1,10 +1,11 @@
-<h1 align="center">Pruning Self-attentions into Convolutional Layers in Single Path</h1>
+<h1 align="center">[TPAMI 2024] Pruning Self-attentions into Convolutional Layers in Single Path</h1>
 
 **This is the official repository for our paper:** [Pruning Self-attentions into Convolutional Layers in Single Path](https://arxiv.org/abs/2111.11802) by [Haoyu He](https://charles-haoyuhe.github.io/), [Jianfei Cai](https://jianfei-cai.github.io/), [Jing liu](https://sites.google.com/view/jing-liu/%E9%A6%96%E9%A1%B5), [Zizheng Pan](https://zizhengpan.github.io/), [Jing Zhang](https://scholar.google.com/citations?user=9jH5v74AAAAJ&hl=en), [Dacheng Tao](https://www.sydney.edu.au/engineering/about/our-people/academic-staff/dacheng-tao.html) and [Bohan Zhuang](https://bohanzhuang.github.io/).
 
 ***
 
 ><h3><strong><i>🚀 News</i></strong></h3>
+>[2023-12-29]: Accepted by TPAMI!
 >
 >[2023-06-09]: Update distillation configurations and pre-trained checkpoints.
 >
@@ -53,11 +54,13 @@ In this repository, we provide code for pruning two representative ViT models.
 If you find our paper useful, please consider cite:
 
 ```
-@article{he2021Pruning,
+@article{he2024Pruning,
   title={Pruning Self-attentions into Convolutional Layers in Single Path},
   author={He, Haoyu and Liu, Jing and Pan, Zizheng and Cai, Jianfei and Zhang, Jing and Tao, Dacheng and Zhuang, Bohan},
-  journal={arXiv preprint arXiv:2111.11802},
-  year={2021}
+  journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  year={2024},
+  publisher={IEEE}
 }
+
 ```
 
